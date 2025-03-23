@@ -3,9 +3,8 @@
 #define PIXEL_BUF_CTRL_BASE 0xFF203020
 
 #define BOX_SIZE 10
-#define CURSOR_COLOR 0xF800  // red
-#define DRAW_COLOR 0xFFFF    // white
-#define BG_COLOR 0x0000      // black
+#define DRAW_COLOR 0xFFFF  // white
+#define BG_COLOR 0x0000    // black
 
 #define WIDTH 320
 #define HEIGHT 240
@@ -54,55 +53,71 @@ void handle_key(char key) {
   pixel_buffer_start = *pixel_ctrl_ptr;
 
   switch (key) {
-    case 0x75:           // up arrow
-      *hex = 0b0111110;  // U
-      if (y_cur - BOX_SIZE >= 0) {
-        draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
+    case 0x75:                      // up arrow
+      *hex = 0b0111110;             // U
+      if (y_cur - BOX_SIZE >= 0) {  // check in bounds
+        short int pixel =
+            *(short int *)(pixel_buffer_start + (y_cur << 10) + (x_cur << 1));
+        if (pixel == BG_COLOR) {  // only erase cursor if on background
+          draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
+        }
         y_cur -= BOX_SIZE;
-        draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
+        draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
       if (x_draw != -1 && y_draw != -1) {
-        draw_box(x_draw, y_draw, DRAW_COLOR);  // draw prev
+        draw_box(x_draw, y_draw, BG_COLOR);  // erase prev
       }
       break;
-    case 0x72:           // down arrow
-      *hex = 0b1011110;  // d
-      if (y_cur + BOX_SIZE < 240) {
-        draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
+    case 0x72:                          // down arrow
+      *hex = 0b1011110;                 // d
+      if (y_cur + BOX_SIZE < HEIGHT) {  // check in bounds
+        short int pixel =
+            *(short int *)(pixel_buffer_start + (y_cur << 10) + (x_cur << 1));
+        if (pixel == BG_COLOR) {  // only erase cursor if on background
+          draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
+        }
         y_cur += BOX_SIZE;
-        draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
+        draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
       if (x_draw != -1 && y_draw != -1) {
-        draw_box(x_draw, y_draw, DRAW_COLOR);  // draw prev
+        draw_box(x_draw, y_draw, BG_COLOR);  // erase prev
       }
       break;
-    case 0x6B:           // left arrow
-      *hex = 0b0111000;  // L
-      if (x_cur - BOX_SIZE >= 0) {
-        draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
+    case 0x6B:                      // left arrow
+      *hex = 0b0111000;             // L
+      if (x_cur - BOX_SIZE >= 0) {  // check in bounds
+        short int pixel =
+            *(short int *)(pixel_buffer_start + (y_cur << 10) + (x_cur << 1));
+        if (pixel == BG_COLOR) {  // only erase cursor if on background
+          draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
+        }
         x_cur -= BOX_SIZE;
-        draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
+        draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
       if (x_draw != -1 && y_draw != -1) {
-        draw_box(x_draw, y_draw, DRAW_COLOR);  // draw prev
+        draw_box(x_draw, y_draw, BG_COLOR);  // erase prev
       }
       break;
-    case 0x74:           // right arrow
-      *hex = 0b0110001;  // r
-      if (x_cur + BOX_SIZE < 320) {
-        draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
+    case 0x74:                         // right arrow
+      *hex = 0b0110001;                // r
+      if (x_cur + BOX_SIZE < WIDTH) {  // check in bounds
+        short int pixel =
+            *(short int *)(pixel_buffer_start + (y_cur << 10) + (x_cur << 1));
+        if (pixel == BG_COLOR) {  // only erase cursor if on background
+          draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
+        }
         x_cur += BOX_SIZE;
-        draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
+        draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
       if (x_draw != -1 && y_draw != -1) {
-        draw_box(x_draw, y_draw, DRAW_COLOR);  // draw prev
+        draw_box(x_draw, y_draw, BG_COLOR);  // erase prev
       }
       break;
-    case 0x1C:           // A key - draw
+    case 0x1C:           // A key - erase
       *hex = 0b1110111;  // A
       x_draw = x_cur;  // save cursor position to draw upon next location change
       y_draw = y_cur;
@@ -129,7 +144,7 @@ void init_vga() {
   pixel_buffer_start = *pixel_ctrl_ptr;
 
   clear_screen();
-  draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
+  draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
 }
 
 void capture() {
