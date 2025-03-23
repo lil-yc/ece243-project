@@ -5,10 +5,15 @@
 #define BOX_SIZE 10
 #define CURSOR_COLOR 0xF800  // red
 #define DRAW_COLOR 0xFFFF    // white
+#define BG_COLOR 0x0000      // black
+
+#define WIDTH 320
+#define HEIGHT 240
 
 void keyboard();            // takes input from PS/2 port
 void handle_key(char key);  // handles key presses
 void init_vga();            // initializes the VGA display
+void capture();             // capture the image into an array
 
 /* VGA display subroutines */
 void plot_pixel(int x, int y, short int line_color);
@@ -19,6 +24,7 @@ void draw_box(int x, int y, short int colour);
 int pixel_buffer_start;
 int x_cur = 160, y_cur = 30;   // cursor position
 int x_draw = -1, y_draw = -1;  // drawing position
+int image[HEIGHT][WIDTH];      // captured image array
 
 int main() {
   init_vga();
@@ -28,8 +34,8 @@ int main() {
 void keyboard() {
   volatile int *PS2_ptr = (int *)PS2_BASE;
   int PS2_data, RVALID;
-  char byte1 = 0, byte2 = 0, byte3 = 0;  // last three bytes read
-  *(PS2_ptr) = 0xFF;                     // reset
+  char byte3 = 0;     // last byte read
+  *(PS2_ptr) = 0xFF;  // reset
 
   while (1) {
     PS2_data = *(PS2_ptr);       // read the Data register in the PS/2 port
@@ -51,7 +57,7 @@ void handle_key(char key) {
     case 0x75:           // up arrow
       *hex = 0b0111110;  // U
       if (y_cur - BOX_SIZE >= 0) {
-        draw_box(x_cur, y_cur, 0x0000);  // erase cursor
+        draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
         y_cur -= BOX_SIZE;
         draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
       }
@@ -63,7 +69,7 @@ void handle_key(char key) {
     case 0x72:           // down arrow
       *hex = 0b1011110;  // d
       if (y_cur + BOX_SIZE < 240) {
-        draw_box(x_cur, y_cur, 0x0000);  // erase cursor
+        draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
         y_cur += BOX_SIZE;
         draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
       }
@@ -75,7 +81,7 @@ void handle_key(char key) {
     case 0x6B:           // left arrow
       *hex = 0b0111000;  // L
       if (x_cur - BOX_SIZE >= 0) {
-        draw_box(x_cur, y_cur, 0x0000);  // erase cursor
+        draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
         x_cur -= BOX_SIZE;
         draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
       }
@@ -87,7 +93,7 @@ void handle_key(char key) {
     case 0x74:           // right arrow
       *hex = 0b0110001;  // r
       if (x_cur + BOX_SIZE < 320) {
-        draw_box(x_cur, y_cur, 0x0000);  // erase cursor
+        draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
         x_cur += BOX_SIZE;
         draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
       }
@@ -103,7 +109,10 @@ void handle_key(char key) {
       break;
     case 0x5A:           // enter key - submit
       *hex = 0b1111001;  // E
-      // capture image
+
+      // call lenet.c main which calls capture() for the input_image
+      capture();
+
       break;
     case 0x66:           // backspace key - clear/reset
       *hex = 0b0111001;  // C
@@ -123,6 +132,24 @@ void init_vga() {
   draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
 }
 
+void capture() {
+  volatile int *pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;
+  pixel_buffer_start = *pixel_ctrl_ptr;
+
+  for (int y = 0; y < HEIGHT; y++) {
+    for (int x = 0; x < WIDTH; x++) {
+      short int pixel =
+          *(short int *)(pixel_buffer_start + (y << 10) + (x << 1));
+      if (pixel != BG_COLOR) {
+        image[y][x] = 255;
+      } else {
+        image[y][x] = 0;
+      }
+    }
+  }
+  return image;
+}
+
 void plot_pixel(int x, int y, short int line_color) {
   volatile short int *one_pixel_address;
 
@@ -134,7 +161,7 @@ void plot_pixel(int x, int y, short int line_color) {
 void clear_screen() {
   for (int x = 0; x < 320; x++) {
     for (int y = 0; y < 240; y++) {
-      plot_pixel(x, y, 0x0000);  // draw black pixels
+      plot_pixel(x, y, BG_COLOR);  // draw black pixels
     }
   }
 }
