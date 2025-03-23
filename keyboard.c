@@ -4,6 +4,7 @@
 
 #define BOX_SIZE 10
 #define CURSOR_COLOR 0xF800  // red
+#define DRAW_COLOR 0xFFFF    // white
 
 void keyboard();            // takes input from PS/2 port
 void handle_key(char key);  // handles key presses
@@ -16,7 +17,8 @@ void draw_box(int x, int y, short int colour);
 
 /* Global Variables */
 int pixel_buffer_start;
-int x_cur = 160, y_cur = 30;  // cursor position
+int x_cur = 160, y_cur = 30;   // cursor position
+int x_draw = -1, y_draw = -1;  // drawing position
 
 int main() {
   init_vga();
@@ -53,6 +55,10 @@ void handle_key(char key) {
         y_cur -= BOX_SIZE;
         draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
       }
+
+      if (x_draw != -1 && y_draw != -1) {
+        draw_box(x_draw, y_draw, DRAW_COLOR);  // draw prev
+      }
       break;
     case 0x72:           // down arrow
       *hex = 0b1011110;  // d
@@ -60,6 +66,10 @@ void handle_key(char key) {
         draw_box(x_cur, y_cur, 0x0000);  // erase cursor
         y_cur += BOX_SIZE;
         draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
+      }
+
+      if (x_draw != -1 && y_draw != -1) {
+        draw_box(x_draw, y_draw, DRAW_COLOR);  // draw prev
       }
       break;
     case 0x6B:           // left arrow
@@ -69,6 +79,10 @@ void handle_key(char key) {
         x_cur -= BOX_SIZE;
         draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
       }
+
+      if (x_draw != -1 && y_draw != -1) {
+        draw_box(x_draw, y_draw, DRAW_COLOR);  // draw prev
+      }
       break;
     case 0x74:           // right arrow
       *hex = 0b0110001;  // r
@@ -77,12 +91,23 @@ void handle_key(char key) {
         x_cur += BOX_SIZE;
         draw_box(x_cur, y_cur, CURSOR_COLOR);  // draw cursor
       }
+
+      if (x_draw != -1 && y_draw != -1) {
+        draw_box(x_draw, y_draw, DRAW_COLOR);  // draw prev
+      }
       break;
     case 0x1C:           // A key - draw
       *hex = 0b1110111;  // A
+      x_draw = x_cur;  // save cursor position to draw upon next location change
+      y_draw = y_cur;
       break;
     case 0x5A:           // enter key - submit
       *hex = 0b1111001;  // E
+      // capture image
+      break;
+    case 0x66:           // backspace key - clear/reset
+      *hex = 0b0111001;  // C
+      init_vga();
       break;
     default:
       *hex = 0;
