@@ -2,7 +2,7 @@
 #define HEX5_HEX4_BASE 0xFF200030
 #define PIXEL_BUF_CTRL_BASE 0xFF203020
 
-#define BOX_SIZE 32
+#define BOX_SIZE 24
 #define DRAW_COLOR 0xFFFF  // white
 #define BG_COLOR 0x0000    // black
 
