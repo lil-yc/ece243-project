@@ -61,7 +61,7 @@ void handle_key(char key) {
         if (pixel == BG_COLOR) {  // only erase cursor if on background
           draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
         }
-        y_cur -= BOX_SIZE;
+        y_cur -= BOX_SIZE / 4;
         draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
@@ -77,7 +77,7 @@ void handle_key(char key) {
         if (pixel == BG_COLOR) {  // only erase cursor if on background
           draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
         }
-        y_cur += BOX_SIZE;
+        y_cur += BOX_SIZE / 4;
         draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
@@ -93,7 +93,7 @@ void handle_key(char key) {
         if (pixel == BG_COLOR) {  // only erase cursor if on background
           draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
         }
-        x_cur -= BOX_SIZE;
+        x_cur -= BOX_SIZE / 4;
         draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
@@ -109,7 +109,7 @@ void handle_key(char key) {
         if (pixel == BG_COLOR) {  // only erase cursor if on background
           draw_box(x_cur, y_cur, BG_COLOR);  // erase cursor
         }
-        x_cur += BOX_SIZE;
+        x_cur += BOX_SIZE / 4;
         draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
