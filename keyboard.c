@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #define PS2_BASE 0xFF200100
 #define HEX5_HEX4_BASE 0xFF200030
 #define PIXEL_BUF_CTRL_BASE 0xFF203020
@@ -22,7 +24,8 @@ void draw_box(int x, int y, short int colour);
 /* Global Variables */
 int pixel_buffer_start;
 int x_cur = 160, y_cur = 30;   // cursor position
-int x_draw = -1, y_draw = -1;  // drawing position
+int x_draw = -1, y_draw = -1;  // drawing position (erasing position)
+bool erase = false;            // erase flag
 int image[HEIGHT][WIDTH];      // captured image array
 
 int main() {
@@ -65,8 +68,9 @@ void handle_key(char key) {
         draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
-      if (x_draw != -1 && y_draw != -1) {
-        draw_box(x_draw, y_draw, BG_COLOR);  // erase prev
+      if (x_draw != -1 && y_draw != -1 && erase) {  // redundant condition?
+        draw_box(x_draw, y_draw, BG_COLOR);         // erase prev
+        erase = false;
       }
       break;
     case 0x72:                          // down arrow
@@ -81,8 +85,9 @@ void handle_key(char key) {
         draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
-      if (x_draw != -1 && y_draw != -1) {
+      if (x_draw != -1 && y_draw != -1 && erase) {
         draw_box(x_draw, y_draw, BG_COLOR);  // erase prev
+        erase = false;
       }
       break;
     case 0x6B:                      // left arrow
@@ -97,8 +102,9 @@ void handle_key(char key) {
         draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
-      if (x_draw != -1 && y_draw != -1) {
+      if (x_draw != -1 && y_draw != -1 && erase) {
         draw_box(x_draw, y_draw, BG_COLOR);  // erase prev
+        erase = false;
       }
       break;
     case 0x74:                         // right arrow
@@ -113,14 +119,16 @@ void handle_key(char key) {
         draw_box(x_cur, y_cur, DRAW_COLOR);  // draw cursor
       }
 
-      if (x_draw != -1 && y_draw != -1) {
+      if (x_draw != -1 && y_draw != -1 && erase) {
         draw_box(x_draw, y_draw, BG_COLOR);  // erase prev
+        erase = false;
       }
       break;
     case 0x1C:           // A key - erase
       *hex = 0b1110111;  // A
       x_draw = x_cur;  // save cursor position to draw upon next location change
       y_draw = y_cur;
+      erase = true;
       break;
     case 0x5A:           // enter key - submit
       *hex = 0b1111001;  // E
