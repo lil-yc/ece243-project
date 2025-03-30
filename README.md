@@ -4,7 +4,7 @@ This project implements a handwritten digit recognition system on the DE1-SoC FP
 
 # Block Diagram
 
-<img width="941" alt="ECE243 project block diagram" src="https://github.com/user-attachments/assets/775d0452-1631-42f2-9a05-fa80468b65cd" />
+<img width="1008" alt="Screenshot 2025-03-30 at 7 30 51 PM" src="https://github.com/user-attachments/assets/ac5e835a-816f-4bdf-ab18-92c1b3b60ca3" />
 
 ## User Input
 PS/2 Mouse: Used for drawing digits on the VGA display.
