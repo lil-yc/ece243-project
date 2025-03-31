@@ -1641,6 +1641,7 @@ void plot_pixel(int x, int y, short int line_color);
 void start();
 void clear_screen();
 void clear_canvas();
+void clear_side();
 void draw_circle(int x_center, int y_center, short int color);
 void disp_class();
 
@@ -2002,6 +2003,15 @@ void handle_key(char key) {
 			y_pos = HEIGHT / 2;
 			draw_cursor();
       		break;
+        
+        /* return to start screen */
+        case 0x71:
+            clear_canvas();							// clear canvas section
+            clear_hex();							// clear hex display
+            x_pos =  WIDTH / 2;
+            y_pos = HEIGHT / 2;
+            start();
+            break;
     	default:
       		break;
   	}
@@ -2015,6 +2025,7 @@ void init_vga() {
 	clear_screen();							// wipe screen
 	disp_class();							// setup side panel
 	draw_cursor();  						// draw start cursor
+    clear_side();                           // clear side panel
 }
 
 void start() {
@@ -2084,6 +2095,38 @@ void clear_canvas() {
 	}
 
 	// display grid
+	for (int i = 0; i < SCREEN_HEIGHT; i++) {
+		plot_pixel(WIDTH, i, DRAW_COLOR);
+	}
+	for (int i = 0; i < (SCREEN_HEIGHT - TITLE_HEIGHT); i++) {
+		plot_pixel(WIDTH + digit_width, i + TITLE_HEIGHT, DRAW_COLOR);
+	}
+
+	for (int i = 0; i < OUTPUT_CLASSES; i++) {
+		for (int x = 0; x < (SCREEN_WIDTH - WIDTH); x++) {
+			plot_pixel(x + WIDTH, (i * digit_height) + TITLE_HEIGHT, DRAW_COLOR);
+		}
+	}
+}
+
+void clear_side() {
+    // clear percentage
+	for (int i = 0; i < OUTPUT_CLASSES; i++) {
+		for (int n = 0; n < 3; n++) {
+			for (int y = 0; y < digit_height; y++) {
+				for (int x = 0; x < digit_width; x++) {
+					if (n == 2)
+						plot_pixel(x + WIDTH + digit_width * (n + 1), y + (i * digit_height) + TITLE_HEIGHT, percent[y][x]);
+					else if (n == 1)
+						plot_pixel(x + WIDTH + digit_width * (n + 1), y + (i * digit_height) + TITLE_HEIGHT, digit[0][y][x]);
+					else
+						plot_pixel(x + WIDTH + digit_width * (n + 1), y + (i * digit_height) + TITLE_HEIGHT, BG_COLOR);
+				}
+			}
+		}
+	}
+
+    // display grid
 	for (int i = 0; i < SCREEN_HEIGHT; i++) {
 		plot_pixel(WIDTH, i, DRAW_COLOR);
 	}
