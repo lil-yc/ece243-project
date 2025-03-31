@@ -1,6 +1,6 @@
 # Project Overview
 
-This project implements a handwritten digit recognition system on the DE1-SoC FPGA using the NIOS V soft processor. Users can draw digits (0-9) on a VGA display using a PS/2 keyboard. The drawn image is processed and downsampled to a 28x28 grayscale image, which is then passed through a modified LeNet-5 CNN model for classification. The predicted digit is displayed on a seven-segment HEX display. Different keyboard keys are for controlling the program's execution.
+This project implements a handwritten digit classification system on the DE1-SoC FPGA using the NIOS V soft processor. Users can draw digits (0-9) on a VGA display using controls from the PS/2 keyboard. The drawn image of 240x240 pixels is processed and down sampled using bilinear resizing to a 28x28 pixel grayscale image, which is then passed through a modified LeNet-5 CNN model for classification. Side panel of the VGA display (80x240 pixels) is used to display the probability of each digit. The predicted digit (highest probability) is displayed on the 7-segment HEX display. Different keyboard keys are used for controlling the program's execution.
 
 # Block Diagram
 
